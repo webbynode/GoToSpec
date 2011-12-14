@@ -1,0 +1,10 @@
+[
+{
+	"id": "file",
+	"children":
+	[
+	    {"id": "gotospec"},
+	    { "command": "go_to_spec" }
+	]
+}
+]

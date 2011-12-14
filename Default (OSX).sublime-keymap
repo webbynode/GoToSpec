@@ -1,0 +1,5 @@
+[
+	{
+		"keys": ["ctrl+alt+shift+s"], "command": "go_to_spec"
+	}
+]
