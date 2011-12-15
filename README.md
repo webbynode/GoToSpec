@@ -5,7 +5,21 @@ This is an early stage RSpec helper plugin for Sublime Text 2.
 
 ![GoToSpec Usage Sample](http://fcoury.info/GoToSpec.gif)
 
-Currently it just jumps between the file being edited and it's spec (and back) using Ctrl+Shift+Alt+S.
+Usage
+=====
+
+The plugin is triggered by Ctrl+Shift+Alt+S key combo.
+
+It will try to find the RSpec file matching the current open file.
+
+If found, it will split the view (if needed) and open the RSpec file on the left side.
+
+Otherwise, it will prompt the user if he wants to create a new spec for the current file.
+
+![Creating a new spec](https://github.com/webbynode/GoToSpec/raw/master/images/inexistent-spec.png)
+
+![Resulting spec](https://github.com/webbynode/GoToSpec/raw/master/images/resulting-spec.png)
+
 
 Installation Instructions
 =========================
