@@ -1,4 +1,4 @@
-import sublime, sublime_plugin, os
+import sublime, sublime_plugin, os, time
 
 class GoToSpecCommand(sublime_plugin.WindowCommand):
 	def open_left(self, file):
@@ -24,6 +24,15 @@ class GoToSpecCommand(sublime_plugin.WindowCommand):
 
 		self.window.focus_group(1)
 		self.window.open_file(file)
+
+	def spec_for(self, folder, dirname, filename, extension):
+		if dirname.startswith('/app'):
+			dirname = dirname[4:]
+
+		dirname = "/spec" + dirname + "/"
+		filename = filename + "_spec" + extension
+
+		return folder + dirname + filename
 
 	def find_spec(self, folder, dirname, filename, extension):
 		if dirname.startswith('/app'):
@@ -60,6 +69,43 @@ class GoToSpecCommand(sublime_plugin.WindowCommand):
 		if os.path.isfile(test_subject):
 			return test_subject
 
+	def underscore_to_class(self, value):
+	    def camelcase(): 
+	        yield str.capitalize
+	        while True:
+	            yield str.capitalize
+
+	    c = camelcase()
+	    return "".join(c.next()(x) if x else '_' for x in value.split("_"))
+
+	def try_to_append(self):
+		view = self.window.active_view()
+
+		if view.is_loading():
+			sublime.set_timeout(self.try_to_append, 50)
+		else:
+			file_name  = os.path.basename(view.file_name())
+			spec_class = self.underscore_to_class(file_name.encode('utf8').replace("_spec.rb", ""))
+
+			edit = view.begin_edit()
+			total = view.insert(edit, 0, """require 'spec_helper'
+
+describe %s do
+  
+end
+""" % spec_class)
+			view.sel().clear()
+			view.sel().add(sublime.Region(total - 5))
+			view.end_edit(edit)
+
+	def on_done(self, option):
+		if option == 0:
+			return
+		
+		self.open_right(self.subject_file)
+		self.open_left(self.proposed_spec)
+		self.try_to_append()
+
 	def run(self):
 		view = self.window.active_view()
 		current_file = view.file_name()
@@ -88,6 +134,13 @@ class GoToSpecCommand(sublime_plugin.WindowCommand):
 			if spec_file and subject_file:
 				self.open_right(subject_file)
 				self.open_left(spec_file)
+			else:
+				if subject_file:
+					self.subject_file  = subject_file
+					self.proposed_spec = self.spec_for(folder, dirname, filename, extension)
+					self.pretty_name   = self.spec_for("", dirname, filename, extension)
+					items = ["Do nothing", ["Create a new spec file", self.pretty_name]]
+					self.window.show_quick_panel(items, self.on_done)
 
 
 
